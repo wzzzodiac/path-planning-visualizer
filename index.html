@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive path planning visualizer for A*, Dijkstra and Greedy Best-First Search.">
+  <meta property="og:title" content="Path Planning Visualizer">
+  <meta property="og:description" content="Watch path-planning algorithms explore a grid in real time.">
+  <meta property="og:type" content="website">
+  <title>Path Planning Visualizer</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">ROBOTICS // PATH PLANNING</p>
+        <h1>Path Planning Visualizer</h1>
+        <p class="subtitle">Build a map, choose an algorithm and watch it decide how much unnecessary exploration is acceptable.</p>
+      </div>
+      <a class="github-link" href="https://github.com/wzzzodiac/path-planning-visualizer" target="_blank" rel="noreferrer">GitHub ↗</a>
+    </header>
+
+    <section class="control-panel">
+      <div class="control-group">
+        <label for="algorithm">Algorithm</label>
+        <select id="algorithm">
+          <option value="astar">A* Search</option>
+          <option value="dijkstra">Dijkstra</option>
+          <option value="greedy">Greedy Best-First</option>
+        </select>
+      </div>
+
+      <div class="control-group speed-group">
+        <label for="speed">Animation speed <span id="speedValue">Fast</span></label>
+        <input id="speed" type="range" min="1" max="5" value="4">
+      </div>
+
+      <div class="button-row">
+        <button id="runBtn" class="primary">RUN</button>
+        <button id="clearPathBtn">CLEAR PATH</button>
+        <button id="clearAllBtn">CLEAR ALL</button>
+        <button id="mazeBtn">RANDOM WALLS</button>
+      </div>
+    </section>
+
+    <section class="legend" aria-label="Grid legend">
+      <span><i class="dot start-dot"></i> Start</span>
+      <span><i class="dot goal-dot"></i> Goal</span>
+      <span><i class="dot wall-dot"></i> Wall</span>
+      <span><i class="dot visited-dot"></i> Explored</span>
+      <span><i class="dot path-dot"></i> Final path</span>
+    </section>
+
+    <section class="workspace">
+      <div class="grid-card">
+        <div id="grid" class="grid" aria-label="Interactive path planning grid"></div>
+        <p class="grid-help">Drag START and GOAL. Click or drag empty cells to draw walls. Right-click a wall to erase it.</p>
+      </div>
+
+      <aside class="stats-card">
+        <p class="panel-label">RUN DATA</p>
+        <div class="stats-grid">
+          <div class="stat"><span>Algorithm</span><strong id="statAlgorithm">A*</strong></div>
+          <div class="stat"><span>Nodes explored</span><strong id="statNodes">0</strong></div>
+          <div class="stat"><span>Path length</span><strong id="statLength">0</strong></div>
+          <div class="stat"><span>Compute time</span><strong id="statTime">0 ms</strong></div>
+        </div>
+        <div id="statusBox" class="status-box">Ready. Please make the robot's life unnecessarily difficult.</div>
+
+        <div class="algorithm-info">
+          <h2 id="infoTitle">A* Search</h2>
+          <p id="infoText">A* combines the travelled cost with a heuristic estimate to the goal. It usually explores far fewer nodes than Dijkstra while still finding an optimal path with this heuristic.</p>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      <span>Made for robots that refuse to simply walk in a straight line.</span>
+      <span>v1.0</span>
+    </footer>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
