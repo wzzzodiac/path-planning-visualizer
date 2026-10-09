@@ -38,6 +38,8 @@ let terrain = new Map();
 let visitedCells = new Set();
 let pathCells = new Set();
 let isRunning = false;
+let searchToken = 0, animationPaused = false;
+let latestPath = [];
 let pointerDown = false;
 let draggedPoint = null;
 let lastPaintedKey = null;
@@ -132,6 +134,7 @@ function renderGrid() {
       if (same({ r, c }, goal)) cell.classList.add('goal');
     }
   }
+  window.atlas3D?.sync(plannerState());
 }
 
 function resetStats() {
@@ -142,6 +145,7 @@ function resetStats() {
 }
 
 function clearSearchVisualization() {
+  latestPath = [];
   visitedCells.clear();
   pathCells.clear();
   resetStats();
@@ -310,11 +314,13 @@ function animationDelay() {
   return ({ 1: 65, 2: 35, 3: 18, 4: 7, 5: 0 })[Number(speedEl.value)];
 }
 
-async function animateResult(result) {
+async function animateResult(result, token) {
   const delay = animationDelay();
   for (let i = 0; i < result.explorationOrder.length; i++) {
+    if (!await animationGate(token)) return;
     const p = result.explorationOrder[i];
     if (!same(p, goal)) visitedCells.add(key(p.r, p.c));
+    statNodes.textContent = String(i + 1);
     if (delay === 0) {
       if (i % 70 === 0) { renderGrid(); await sleep(0); }
     } else {
@@ -326,6 +332,7 @@ async function animateResult(result) {
 
   if (!result.found) return;
   for (const p of result.path) {
+    if (!await animationGate(token)) return;
     if (!same(p, goal)) pathCells.add(key(p.r, p.c));
     renderGrid();
     if (delay > 0) await sleep(Math.max(8, delay));
@@ -334,6 +341,8 @@ async function animateResult(result) {
 
 async function run() {
   if (isRunning) return;
+  const token = ++searchToken;
+  animationPaused = false;
   isRunning = true;
   setControlsDisabled(true);
   clearSearchVisualization();
@@ -353,7 +362,10 @@ async function run() {
   statCost.textContent = result.found ? result.cost.toFixed(2) : '—';
   statTime.textContent = `${computeMs.toFixed(2)} ms`;
 
-  await animateResult(result);
+  await animateResult(result, token);
+  if (token !== searchToken) return;
+  latestPath = result.path;
+  if (result.found) window.atlas3D?.play(result.path);
 
   if (result.found) {
     const comments = {
@@ -371,7 +383,10 @@ async function run() {
 }
 
 function setControlsDisabled(disabled) {
-  [runBtn, clearPathBtn, clearWallsBtn, mazeBtn, terrainBtn, resetBtn].forEach(btn => btn.disabled = disabled);
+  $('pauseBtn').disabled = !disabled;
+  $('stopBtn').disabled = !disabled;
+  $('pauseBtn').textContent = 'Pause';
+  [runBtn, clearPathBtn, clearWallsBtn, mazeBtn, terrainBtn, resetBtn, $('canyonBtn')].forEach(btn => btn.disabled = disabled);
   [algorithmEl, brushEl, speedEl, diagonalToggle].forEach(el => el.disabled = disabled);
 }
 
@@ -394,7 +409,9 @@ function resetDemo() {
   clearSearchVisualization();
   updateBrushReadout();
   updateMovementReadout();
-  statusBox.textContent = 'Demo reset. Fresh grid, fresh opportunities for bad routing decisions.';
+  populateDemo();
+  renderGrid();
+  statusBox.textContent = 'Field 01 loaded. Find a route through the barriers and weighted terrain.';
 }
 
 function randomWalls() {
@@ -476,3 +493,41 @@ updateAlgorithmInfo();
 updateSpeedLabel();
 updateBrushReadout();
 statMovement.textContent = '4-WAY';
+
+function plannerState() { return {start, goal, walls, terrain, visited:visitedCells, path:pathCells, running:isRunning}; }
+async function animationGate(token) {
+  while ((animationPaused || document.hidden) && token === searchToken) await sleep(60);
+  return token === searchToken;
+}
+function populateDemo() {
+  for(let r=3;r<20;r++) {
+    if(r!==8&&r!==9) walls.add(key(r,12));
+    if(r!==15&&r!==16) walls.add(key(r,24));
+  }
+  for(let r=10;r<15;r++)for(let c=14;c<23;c++)terrain.set(key(r,c),c>=17&&c<=19?8:4);
+}
+$('pauseBtn').addEventListener('click',()=>{animationPaused=!animationPaused;$('pauseBtn').textContent=animationPaused?'Resume':'Pause';statusBox.textContent=animationPaused?'Search paused. Orbit the terrain to inspect the explored area.':'Search resumed.';});
+$('stopBtn').addEventListener('click',()=>{searchToken++;isRunning=false;animationPaused=false;setControlsDisabled(false);statusBox.textContent='Search stopped. Run again or edit the map.';});
+$('replayBtn').addEventListener('click',()=>{if(latestPath.length)window.atlas3D?.play(latestPath);});
+gridEl.addEventListener('pointermove',event=>{
+  if(event.pointerType==='mouse'||!pointerDown)return;
+  const cell=document.elementFromPoint(event.clientX,event.clientY)?.closest('.cell');
+  if(cell&&gridEl.contains(cell))onPointerEnter({currentTarget:cell});
+});
+window.plannerAPI={state:plannerState,down:onPointerDown,enter:onPointerEnter,up:finishPointerAction,erase(r,c){if(!isRunning){eraseCell(r,c);clearSearchVisualization();}},fallback:null};
+populateDemo();renderGrid();
+
+function loadCanyon() {
+  if(isRunning)return;
+  walls.clear();terrain.clear();start={r:18,c:3};goal={r:5,c:34};
+  for(let r=1;r<23;r++)for(let c=1;c<37;c++) {
+    const left=11+Math.round(Math.sin(r*.34)*3),right=26+Math.round(Math.sin(r*.27+1)*3);
+    if((Math.abs(c-left)<3&&r!==7&&r!==8)||(Math.abs(c-right)<3&&r!==16&&r!==17))walls.add(key(r,c));
+    else if(c>left&&c<right)terrain.set(key(r,c),(r+c)%7<2?8:4);
+  }
+  walls.delete(key(start.r,start.c));walls.delete(key(goal.r,goal.c));
+  clearSearchVisualization();window.atlas3D?.preset('overview');
+  statusBox.textContent='Canyon pass loaded. Two ridges, two crossings, and a costly basin between them.';
+}
+$('canyonBtn').addEventListener('click',loadCanyon);
+if(new URLSearchParams(location.search).get('scene')==='canyon')loadCanyon();

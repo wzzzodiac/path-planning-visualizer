@@ -1,0 +1,143 @@
+{
+  "checks": [
+    "Blender GLB loaded with all four wheel pivots",
+    "idle 3D does not continuously submit frames",
+    "orbit drag rotates camera",
+    "zoom control changes frustum",
+    "3D paint adds wall at raycast cell",
+    "3D cost-4 brush",
+    "3D cost-8 brush",
+    "3D right-click erases",
+    "START can be dragged in 3D",
+    "GOAL can be dragged in 3D",
+    "2D editing updates same model",
+    "2D view suspends 3D renderer",
+    "low quality setting",
+    "high quality setting",
+    "auto quality setting",
+    "search pause freezes exploration",
+    "painting and map controls locked while searching",
+    "stop cancels and restores controls",
+    "astar search completes",
+    "astar has playable rover route",
+    "dijkstra search completes",
+    "dijkstra has playable rover route",
+    "greedy search completes",
+    "greedy has playable rover route",
+    "rover and wheel pivots animate on the path",
+    "hidden document suspends GPU frames",
+    "rover arrives at GOAL",
+    "completed replay returns to idle",
+    "rover replay restarts",
+    "responsive 360x800",
+    "responsive 768x1024",
+    "responsive 844x390",
+    "responsive 1920x1080",
+    "48 seeded searches exactly match original cost, path and exploration order",
+    "diagonal metric uses sqrt(2)",
+    "blocked corners cannot be cut",
+    "weighted search takes cheaper detour",
+    "unreachable map reports no path",
+    "no-path UI recovers and disables rover replay",
+    "20 search/reset cycles keep GPU resource counts stable",
+    "mobile run button visible without scrolling",
+    "touch paints 3D terrain",
+    "reduced motion presents route without automatic rover traversal",
+    "WebGL unavailable: 2D editor and search remain functional",
+    "no unexpected browser errors",
+    "all resources loaded"
+  ],
+  "errors": [],
+  "resources": [],
+  "performance": [
+    {
+      "viewport": "desktop",
+      "fps": 119.99454570246793,
+      "p95": 8.5,
+      "calls": 135,
+      "triangles": 32174,
+      "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "viewport": "mobile-emulation",
+      "fps": 119.99999999999984,
+      "p95": 8.400000000000091,
+      "calls": 135,
+      "triangles": 32174,
+      "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    }
+  ],
+  "algorithmComparisons": 48,
+  "browser": "154.0.4258.62",
+  "model": {
+    "meshes": 79,
+    "wheels": [
+      {
+        "name": "Wheel_LF",
+        "position": [
+          -0.36000001430511475,
+          0.2199999988079071,
+          0.33000001311302185
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          "XYZ"
+        ]
+      },
+      {
+        "name": "Wheel_LB",
+        "position": [
+          -0.36000001430511475,
+          0.2199999988079071,
+          -0.33000001311302185
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          "XYZ"
+        ]
+      },
+      {
+        "name": "Wheel_RF",
+        "position": [
+          0.36000001430511475,
+          0.2199999988079071,
+          0.33000001311302185
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          "XYZ"
+        ]
+      },
+      {
+        "name": "Wheel_RB",
+        "position": [
+          0.36000001430511475,
+          0.2199999988079071,
+          -0.33000001311302185
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          "XYZ"
+        ]
+      }
+    ]
+  },
+  "memory": {
+    "before": {
+      "geometries": 135,
+      "textures": 4
+    },
+    "after": {
+      "geometries": 135,
+      "textures": 4
+    }
+  }
+}

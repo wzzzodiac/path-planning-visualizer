@@ -1,0 +1,47 @@
+{
+  "checks": [
+    "Canyon URL preset has a route",
+    "astar: Canyon route cost 54",
+    "dijkstra: Canyon route cost 54",
+    "greedy: Canyon route cost 147",
+    "GLB wheel pivots rotate in place under RoverRoot",
+    "Random walls and weighted terrain still work",
+    "2D right-click erases",
+    "Context loss switches to working 2D search",
+    "Switching to 2D during asset load keeps 3D suspended"
+  ],
+  "errors": [],
+  "asset": {
+    "size": [
+      0.9520000226189751,
+      0.979000022382477,
+      1.1015000113638758
+    ],
+    "wheels": [
+      {
+        "name": "Wheel_LF",
+        "parent": "RoverRoot",
+        "children": 15,
+        "pivotShift": 0
+      },
+      {
+        "name": "Wheel_LB",
+        "parent": "RoverRoot",
+        "children": 15,
+        "pivotShift": 0
+      },
+      {
+        "name": "Wheel_RF",
+        "parent": "RoverRoot",
+        "children": 15,
+        "pivotShift": 0
+      },
+      {
+        "name": "Wheel_RB",
+        "parent": "RoverRoot",
+        "children": 15,
+        "pivotShift": 0
+      }
+    ]
+  }
+}
