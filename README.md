@@ -1,4 +1,4 @@
-# Path Planning Visualizer v2
+# Path Planning Visualizer / Atlas 3D
 
 Interactive browser-based visualization of common grid path-planning algorithms.
 
@@ -83,12 +83,18 @@ step cost = sqrt(2) × terrain cost
 
 ## Run locally
 
-Open `index.html` in a browser.
+Serve the checkout with `python -m http.server 8003 --bind 127.0.0.1`, then open `http://127.0.0.1:8003/`. Use `/?scene=canyon` for the Canyon scenario. JavaScript modules require HTTP; opening the file directly is not supported.
 
 ## Tech
 
-Plain HTML, CSS and JavaScript. No framework and no backend.
+Plain HTML, CSS and JavaScript, with locally vendored Three.js 0.180.0 and a Blender-built GLB rover. No framework, build step, runtime CDN or backend.
 
 ---
 
 Made for robots that refuse to simply walk in a straight line.
+
+## Atlas 3D review
+
+Orbit an interactive planning table, switch to a top view, paint terrain or drag endpoints in 3D, and follow the survey rover along the computed route. The 2D editor remains available and serves as the WebGL fallback. Original A*, Dijkstra and Greedy behavior is preserved: height is decorative, costs remain 1/4/8, and diagonal corner cutting is disabled.
+
+The review includes [before/after images and video](docs/atlas/index.html), [validation and limitations](docs/atlas-review.md), and the editable [Blender source](assets/rover.blend). Regenerate the rover with `blender --background --python-exit-code 1 --python tools/build_rover.py`.

@@ -1,140 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Interactive path planning visualizer with A*, Dijkstra, Greedy Best-First, weighted terrain and diagonal movement.">
-  <meta property="og:title" content="Path Planning Visualizer v2">
-  <meta property="og:description" content="Build maps, add weighted terrain and compare path-planning algorithms in real time.">
-  <meta property="og:type" content="website">
-  <title>Path Planning Visualizer v2</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <main class="shell">
-    <header class="hero">
-      <div>
-        <p class="eyebrow">ROBOTICS // PATH PLANNING // V2</p>
-        <h1>Path Planning Visualizer</h1>
-        <p class="subtitle">Build the map yourself, move START and GOAL, paint terrain with different travel costs and watch three search algorithms disagree about what “efficient” means.</p>
-      </div>
-      <a class="github-link" href="https://github.com/wzzzodiac/path-planning-visualizer" target="_blank" rel="noreferrer">GitHub ↗</a>
-    </header>
-
-    <section class="control-panel" aria-label="Path planning controls">
-      <div class="control-group">
-        <label for="algorithm">Algorithm</label>
-        <select id="algorithm">
-          <option value="astar">A* Search</option>
-          <option value="dijkstra">Dijkstra</option>
-          <option value="greedy">Greedy Best-First</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label for="brush">Map brush</label>
-        <select id="brush">
-          <option value="wall">Wall / obstacle</option>
-          <option value="erase">Erase</option>
-          <option value="rough">Rough terrain — cost 4</option>
-          <option value="heavy">Heavy terrain — cost 8</option>
-        </select>
-      </div>
-
-      <div class="control-group speed-group">
-        <label for="speed">Animation speed <span id="speedValue">Fast</span></label>
-        <input id="speed" type="range" min="1" max="5" value="4">
-      </div>
-
-      <div class="control-group diagonal-group">
-        <span class="control-label">Movement model</span>
-        <label class="toggle-line" for="diagonalToggle">
-          <input id="diagonalToggle" type="checkbox">
-          <span class="toggle-box" aria-hidden="true"></span>
-          <span>Allow diagonal movement</span>
-        </label>
-        <p class="control-hint">Diagonal steps cost √2 × terrain cost. Corner cutting through blocked cells is disabled.</p>
-      </div>
-
-      <div class="button-row">
-        <button id="runBtn" class="primary">RUN</button>
-        <button id="clearPathBtn">CLEAR PATH</button>
-        <button id="clearWallsBtn">CLEAR MAP</button>
-        <button id="mazeBtn">RANDOM WALLS</button>
-        <button id="terrainBtn">RANDOM TERRAIN</button>
-        <button id="resetBtn">RESET DEMO</button>
-      </div>
-    </section>
-
-    <section class="legend" aria-label="Grid legend">
-      <span><i class="dot start-dot"></i> Start</span>
-      <span><i class="dot goal-dot"></i> Goal</span>
-      <span><i class="dot wall-dot"></i> Wall</span>
-      <span><i class="dot rough-dot"></i> Cost 4</span>
-      <span><i class="dot heavy-dot"></i> Cost 8</span>
-      <span><i class="dot visited-dot"></i> Explored</span>
-      <span><i class="dot path-dot"></i> Final path</span>
-    </section>
-
-    <section class="workspace">
-      <div class="grid-card">
-        <div class="grid-toolbar">
-          <span>MAP EDITOR // 38 × 24</span>
-          <span id="brushReadout">BRUSH: WALL</span>
-        </div>
-        <div id="grid" class="grid" aria-label="Interactive path planning grid"></div>
-        <p class="grid-help"><strong>Move:</strong> drag START or GOAL. <strong>Edit:</strong> choose a brush and paint the map. Right-click always erases. Weighted terrain is slower to cross, so the cheapest route may be longer in distance.</p>
-      </div>
-
-      <aside class="stats-card">
-        <p class="panel-label">RUN DATA</p>
-        <div class="stats-grid">
-          <div class="stat"><span>Algorithm</span><strong id="statAlgorithm">A*</strong></div>
-          <div class="stat"><span>Nodes explored</span><strong id="statNodes">0</strong></div>
-          <div class="stat"><span>Path steps</span><strong id="statLength">0</strong></div>
-          <div class="stat"><span>Path cost</span><strong id="statCost">0</strong></div>
-          <div class="stat"><span>Compute time</span><strong id="statTime">0 ms</strong></div>
-          <div class="stat"><span>Movement</span><strong id="statMovement">4-WAY</strong></div>
-        </div>
-
-        <div id="statusBox" class="status-box">Ready. Draw something unnecessarily hostile to robots.</div>
-
-        <div class="algorithm-info">
-          <p class="panel-label">EXPLAIN LIKE I'M NORMAL</p>
-          <h2 id="infoTitle">A* Search</h2>
-          <p id="infoText"></p>
-          <div class="simple-example" id="infoSimple"></div>
-        </div>
-      </aside>
-    </section>
-
-    <section class="comparison-section">
-      <div>
-        <p class="panel-label">WHY DO THEY LOOK DIFFERENT?</p>
-        <h2>Three algorithms, three personalities.</h2>
-      </div>
-      <div class="comparison-grid">
-        <article>
-          <h3>A*</h3>
-          <p>Knows the cost already travelled and also estimates how far the goal probably is. Usually the best balance between “correct” and “please stop exploring the entire map”.</p>
-        </article>
-        <article>
-          <h3>Dijkstra</h3>
-          <p>Only cares about total cost from START. It is methodical and guarantees the cheapest route, but it has zero directional intuition and may inspect a lot of cells.</p>
-        </article>
-        <article>
-          <h3>Greedy</h3>
-          <p>Main thought: “goal is over there”. It follows the estimate aggressively and often explores fewer cells, but it can choose a more expensive route because previous travel cost barely matters.</p>
-        </article>
-      </div>
-    </section>
-
-    <footer>
-      <span>GRID SEARCH // WEIGHTED COSTS // OPTIONAL 8-CONNECTIVITY</span>
-      <span>v2.0 — robots may now regret terrain choices too.</span>
-    </footer>
-  </main>
-  <script src="script.js"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="A 3D path-planning terrain lab. Compare A*, Dijkstra and Greedy, paint weighted terrain and follow a survey rover along the route."><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'"><title>Atlas / Path Planning Lab</title><link rel="icon" href="data:,"><link rel="stylesheet" href="style.css?v=atlas-1"></head>
+<body><main class="shell">
+<header class="topbar"><a class="brand" href="https://wzzzodiac.github.io/">W.ZC <span>/ NAVIGATION LAB</span></a><a href="https://github.com/wzzzodiac/path-planning-visualizer" target="_blank" rel="noreferrer">Source ↗</a></header>
+<div class="title-row"><div><p class="eyebrow">PATH PLANNING / FIELD 01</p><h1>Atlas<span>Find a way through.</span></h1></div><p class="intro">Build the terrain. Watch the search.<br>Follow the route.</p></div>
+<div class="workspace">
+<section class="map-panel" aria-label="Terrain and simulation">
+<div class="scene-top"><span id="modelState">R-01 / LOADING</span><div class="segmented"><button id="view3d" aria-pressed="true">3D TERRAIN</button><button id="view2d" aria-pressed="false">2D MAP</button></div><span>38 × 24</span></div>
+<div class="stage"><div id="sceneHost"></div><div id="grid" class="grid" hidden aria-label="Interactive 2D path planning grid"></div><div class="scene-stamp" aria-hidden="true">ATLAS <span>WEIGHTED NAVIGATION<br>ORTHOGONAL / DIAGONAL</span></div><p id="viewNotice" class="view-notice" role="status"></p></div>
+<div class="view-tools"><div class="segmented"><button id="orbitBtn" aria-pressed="true">Orbit</button><button id="editBtn" aria-pressed="false">Edit map</button></div><div class="camera-tools"><button id="overviewBtn" title="Reset camera">Overview</button><button id="topBtn">Top</button><button id="followBtn">Rover</button><button id="zoomOut" aria-label="Zoom out">−</button><button id="zoomIn" aria-label="Zoom in">+</button></div></div>
+<div class="action-bar"><button id="runBtn" class="primary">RUN SEARCH <span>↗</span></button><button id="pauseBtn" disabled>Pause</button><button id="stopBtn" disabled>Stop</button><button id="replayBtn" disabled>Replay rover</button></div>
+<div class="metrics"><div><span>EXPLORED</span><strong id="statNodes">0</strong></div><div><span>PATH STEPS</span><strong id="statLength">0</strong></div><div><span>TOTAL COST</span><strong id="statCost">0</strong></div><div><span>COMPUTE</span><strong id="statTime">0 ms</strong></div></div>
+<div class="legend"><span><i class="start-dot"></i>Start</span><span><i class="goal-dot"></i>Goal</span><span><i class="wall-dot"></i>Wall</span><span><i class="rough-dot"></i>Cost 4</span><span><i class="heavy-dot"></i>Cost 8</span><span><i class="visited-dot"></i>Explored</span><span><i class="path-dot"></i>Route</span></div>
+<p class="map-hint" id="mapHint">Drag to orbit · Scroll or + / − to zoom · Select Edit map to paint or drag START / GOAL.</p>
+</section>
+<aside class="console">
+<div class="section-head"><span>01 / SEARCH</span><strong id="statAlgorithm">A*</strong></div>
+<label for="algorithm">Algorithm</label><select id="algorithm"><option value="astar">A* Search</option><option value="dijkstra">Dijkstra</option><option value="greedy">Greedy Best-First</option></select>
+<label class="range-label" for="speed">Animation speed <span id="speedValue">Fast</span></label><input id="speed" type="range" min="1" max="5" value="4">
+<label class="toggle" for="diagonalToggle"><input id="diagonalToggle" type="checkbox">Allow diagonal movement <span id="statMovement">4-WAY</span></label>
+<div class="section-head"><span>02 / TERRAIN</span><strong id="brushReadout">BRUSH: WALL</strong></div>
+<label for="brush">Map brush</label><select id="brush"><option value="wall">Wall / obstacle</option><option value="erase">Erase</option><option value="rough">Rough terrain · cost 4</option><option value="heavy">Heavy terrain · cost 8</option></select>
+<div class="map-actions"><button id="clearPathBtn">Clear path</button><button id="clearWallsBtn">Clear map</button><button id="mazeBtn">Random walls</button><button id="terrainBtn">Random terrain</button><button id="resetBtn">Reset demo</button><button id="canyonBtn">Canyon pass ↗</button></div>
+<div class="status-box" id="statusBox" role="status">Ready. Explore the terrain or run a search.</div>
+<details class="algorithm-info" open><summary>How this search thinks <span>+</span></summary><h2 id="infoTitle">A* Search</h2><p id="infoText"></p><p id="infoSimple" class="simple-example"></p></details>
+<details><summary>Controls &amp; map rules <span>+</span></summary><p>Orbit: drag to rotate. Zoom with the wheel or + / −. Edit: drag to paint, or drag START and GOAL. Right-click erases. On touchscreens, use one finger in the selected mode.</p><p>The terrain is a 3D view of a 2D grid. Height is decorative. Normal cells cost 1, rough cells 4 and heavy cells 8. Diagonal steps multiply that cost by √2; cutting through blocked corners is disabled.</p><p>A* and Dijkstra find the cheapest route. Greedy can find a more expensive route. The rover replay illustrates the path at a constant cell rate; it does not simulate terrain-dependent travel time.</p></details>
+<label class="quality" for="qualitySelect">Render quality<select id="qualitySelect"><option value="auto">Auto</option><option value="high">High</option><option value="low">Low</option></select></label>
+</aside></div><footer><span>PATH PLANNING VISUALIZER / ATLAS 3D</span><span>Made for robots with a sense of direction.</span></footer>
+</main><script src="script.js?v=atlas-1"></script><script type="module" src="view.js?v=atlas-1"></script></body></html>
